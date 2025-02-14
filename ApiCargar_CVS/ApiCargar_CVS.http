@@ -1,0 +1,6 @@
+@ApiCargar_CVS_HostAddress = http://localhost:5272
+
+GET {{ApiCargar_CVS_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
