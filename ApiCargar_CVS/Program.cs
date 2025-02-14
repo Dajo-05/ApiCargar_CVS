@@ -12,15 +12,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("ConexionBD")));
 
 //Configuracion de Corss
-/*builder.Services.AddCors(options =>
+builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:5173")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
-});*/
+});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -51,7 +51,7 @@ if (app.Environment.IsDevelopment())
 }
 
 //Usar politica de corss
-//app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
 

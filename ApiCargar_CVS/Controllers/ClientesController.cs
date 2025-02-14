@@ -26,15 +26,21 @@ namespace ApiCargar_CVS.Controllers
 
         // GET: api/<ClientesController>
         [HttpGet]
-        public async Task<IActionResult> GetClientes([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public IActionResult GetClientes(int page = 1, int size = 10, string? search = null)
         {
-            var clientes = await _context.Clientes
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var query = _context.Clientes.AsQueryable();
 
-            return Ok(clientes);
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(c => c.Nombre.Contains(search) || c.Email.Contains(search));
+            }
+
+            var totalItems = query.Count();
+            var clientes = query.Skip((page - 1) * size).Take(size).ToList();
+
+            return Ok(new { clientes, totalItems });
         }
+
 
         // GET api/<ClientesController>/5
         [HttpGet("{id}")]
@@ -47,7 +53,8 @@ namespace ApiCargar_CVS.Controllers
         }
 
         // POST api/<ClientesController>
-        [HttpPost("upload")]
+        /*[HttpPost("upload")]
+        [RequestSizeLimit(100_000_000)]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadCsv([FromForm] UploadCsvDto file)
         {
@@ -82,7 +89,70 @@ namespace ApiCargar_CVS.Controllers
                 return StatusCode(500, $"Error procesando el archivo: {ex.Message}");
             }
         
+        }*/
+
+        [HttpPost("upload")]
+        [RequestSizeLimit(100_000_000)] // Ajustar si se requiere
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadCsv([FromForm] UploadCsvDto file)
+        {
+            if (file == null || file.File.Length == 0)
+            {
+                return BadRequest("Debe subir un archivo CSV válido.");
+            }
+
+            try
+            {
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    HeaderValidated = null,  // Ignorar validación de encabezados
+                    MissingFieldFound = null // Ignorar campos faltantes
+                };
+
+                using var reader = new StreamReader(file.File.OpenReadStream());
+                using var csv = new CsvReader(reader, config);
+
+                csv.Context.RegisterClassMap<ClienteMap>();  // Aplicar el mapeo
+
+                var buffer = new List<Cliente>();
+                int totalRegistros = 0;
+                const int chunkSize = 1000; // Procesar en bloques de 1000 (por ejemplo)
+
+                while (csv.Read())
+                {
+                    // Lee registro a registro
+                    var record = csv.GetRecord<Cliente>();
+                    buffer.Add(record);
+                    totalRegistros++;
+
+                    // Cuando lleguemos al chunkSize, guardamos en DB
+                    if (buffer.Count >= chunkSize)
+                    {
+                        await _context.Clientes.AddRangeAsync(buffer);
+                        await _context.SaveChangesAsync();
+                        buffer.Clear();
+                    }
+                }
+
+                // Guardar los registros que queden en el buffer
+                if (buffer.Count > 0)
+                {
+                    await _context.Clientes.AddRangeAsync(buffer);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok(new
+                {
+                    Message = "Archivo procesado y datos guardados correctamente",
+                    TotalRegistros = totalRegistros
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error procesando el archivo: {ex.Message}");
+            }
         }
+
 
         // PUT api/<ClientesController>/5
         [HttpPut("{id}")]
