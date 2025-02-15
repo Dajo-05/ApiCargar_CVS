@@ -42,9 +42,8 @@ dotnet ef database update
 
 ### Configuración de URL para Corss
 Se debe editar el archivo Program.cs para no tener bloqueo de Corss desde el backend hacia el fronted, cambiando el valor de TU_URL por la url que genere el proyecto frontend al ejecutarlo.
-
-//Configuracion de Corss
 ```
+//Configuracion de Corss
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
