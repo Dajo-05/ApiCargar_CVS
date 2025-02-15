@@ -12,7 +12,8 @@ Este proyecto es una API para gestionar clientes y cargar datos desde archivos C
 ### Clonar el Repositorio
 
 Primero, clona el repositorio en tu máquina local:
-git clone https://github.com/tu-usuario/ApiCargar_CVS.git cd ApiCargar_CVS
+git clone https://github.com/tu-usuario/ApiCargar_CVS.git 
+cd ApiCargar_CVS
 
 ### Configurar la Base de Datos
 
