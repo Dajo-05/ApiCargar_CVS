@@ -62,6 +62,24 @@ Ejecuta el proyecto utilizando el siguiente comando:
 ```
 dotnet run
 ```
+## Ejecutar Pruebas Unitarias
+
+Para ejecutar las pruebas unitarias, sigue estos pasos:
+
+1. **Abrir la Terminal**: Abre una terminal en la raíz de tu solución.
+2. **Navegar al Proyecto de Pruebas**: Navega al directorio del proyecto de pruebas.
+
+```
+cd ApiCargar_CVS.Tests
+```
+
+3. **Ejecutar las Pruebas**: Ejecuta las pruebas utilizando el siguiente comando:
+
+```
+dotnet test
+```
+
+Este comando compilará el proyecto de pruebas y ejecutará todas las pruebas definidas en él. Los resultados de las pruebas se mostrarán en la terminal, indicando cuántas pruebas pasaron y cuántas fallaron.
 
 
 
