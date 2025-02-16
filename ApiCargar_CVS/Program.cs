@@ -30,11 +30,10 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
-    options.OperationFilter<FileUploadOperationFilter>(); // Se agrega el filtro para archivos
+    options.OperationFilter<FileUploadOperationFilter>();
 });
-
-builder.Services.AddScoped<CsvService>(); // Registra CsvService en el contenedor
-//builder.Services.AddScoped<ICsvService, CsvService>();
+// Registra CsvService en el contenedor
+builder.Services.AddScoped<CsvService>(); 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

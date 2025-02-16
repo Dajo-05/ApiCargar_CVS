@@ -41,17 +41,6 @@ namespace ApiCargar_CVS.Controllers
             return Ok(new { clientes, totalItems });
         }
 
-
-        // GET api/<ClientesController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCliente(int id)
-        {
-            var cliente = await _context.Clientes.FindAsync(id);
-            if (cliente == null) return NotFound();
-
-            return Ok(cliente);
-        }
-
         // POST api/<ClientesController>
         [HttpPost("upload")]
         [RequestSizeLimit(100_000_000)] // Ajustar si se requiere
@@ -124,18 +113,5 @@ namespace ApiCargar_CVS.Controllers
             }
         }
 
-
-
-        // PUT api/<ClientesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ClientesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

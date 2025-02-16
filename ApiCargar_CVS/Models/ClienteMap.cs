@@ -6,9 +6,10 @@ namespace ApiCargar_CVS.Models
     {
         public ClienteMap()
         {
-            Map(m => m.Nombre).Name("nombre");  // Mapea "nombre" del CSV a la propiedad Nombre
-            Map(m => m.Edad).Name("edad");      // Mapea "edad" del CSV a la propiedad Edad
-            Map(m => m.Email).Name("email");    // Mapea "email" del CSV a la propiedad Email
+            // Mapeo de las columnas del CSV a las propiedades de la clase Cliente
+            Map(m => m.Nombre).Name("nombre"); 
+            Map(m => m.Edad).Name("edad");      
+            Map(m => m.Email).Name("email");    
         }
     }
 }
