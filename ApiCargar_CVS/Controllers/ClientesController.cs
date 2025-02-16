@@ -53,44 +53,6 @@ namespace ApiCargar_CVS.Controllers
         }
 
         // POST api/<ClientesController>
-        /*[HttpPost("upload")]
-        [RequestSizeLimit(100_000_000)]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadCsv([FromForm] UploadCsvDto file)
-        {
-            if (file == null || file.File.Length == 0)
-            {
-                return BadRequest("Debe subir un archivo CSV válido.");
-            }
-
-            try
-            {
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                {
-                    HeaderValidated = null,  // Ignorar validación de encabezados
-                    MissingFieldFound = null // Ignorar campos faltantes
-                };
-
-                using (var reader = new StreamReader(file.File.OpenReadStream()))
-                using (var csv = new CsvReader(reader, config))
-                {
-                    csv.Context.RegisterClassMap<ClienteMap>();  // Aplicar el mapeo
-                    var clientes = csv.GetRecords<Cliente>().ToList();
-
-                    // Guardar en la base de datos
-                    await _context.Clientes.AddRangeAsync(clientes);
-                    await _context.SaveChangesAsync();
-
-                    return Ok(new { Message = "Archivo procesado y datos guardados correctamente", TotalRegistros = clientes.Count });
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error procesando el archivo: {ex.Message}");
-            }
-        
-        }*/
-
         [HttpPost("upload")]
         [RequestSizeLimit(100_000_000)] // Ajustar si se requiere
         [Consumes("multipart/form-data")]
@@ -120,17 +82,26 @@ namespace ApiCargar_CVS.Controllers
 
                 while (csv.Read())
                 {
-                    // Lee registro a registro
-                    var record = csv.GetRecord<Cliente>();
-                    buffer.Add(record);
-                    totalRegistros++;
-
-                    // Cuando lleguemos al chunkSize, guardamos en DB
-                    if (buffer.Count >= chunkSize)
+                    try
                     {
-                        await _context.Clientes.AddRangeAsync(buffer);
-                        await _context.SaveChangesAsync();
-                        buffer.Clear();
+                        // Lee registro a registro
+                        var record = csv.GetRecord<Cliente>();
+                        buffer.Add(record);
+                        totalRegistros++;
+
+                        // Cuando lleguemos al chunkSize, guardamos en DB
+                        if (buffer.Count >= chunkSize)
+                        {
+                            await _context.Clientes.AddRangeAsync(buffer);
+                            await _context.SaveChangesAsync();
+                            buffer.Clear();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Capturar y mostrar errores específicos de la fila y columna
+                        var errorMessage = $"Error en la fila {csv.Context.Parser?.Row - 1 ?? 0} y columna {csv.Context.Parser?.RawRow - 1 ?? 0}";
+                        return BadRequest(new { Message = errorMessage });
                     }
                 }
 
@@ -152,6 +123,7 @@ namespace ApiCargar_CVS.Controllers
                 return StatusCode(500, $"Error procesando el archivo: {ex.Message}");
             }
         }
+
 
 
         // PUT api/<ClientesController>/5
